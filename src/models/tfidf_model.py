@@ -11,7 +11,6 @@ def run_tfidf_baseline():
     print("=== Running TF-IDF + Logistic Regression Baseline ===")
     
     # 1. Load the processed datasets
-    # Using the exact same dataset for fair comparison
     train_df = pd.read_csv("data/processed/train.csv")
     test_df = pd.read_csv("data/processed/test.csv")
 
@@ -21,7 +20,6 @@ def run_tfidf_baseline():
     y_test = test_df['intent_name'].tolist()
 
     # 2. Text Preprocessing & Feature Extraction
-    # Convert text to numerical vectors using TF-IDF
     print("Vectorizing text data...")
     vectorizer = TfidfVectorizer(max_features=5000, lowercase=True, stop_words='english')
     X_train_vec = vectorizer.fit_transform(X_train)
