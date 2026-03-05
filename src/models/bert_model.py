@@ -1,10 +1,13 @@
+# src/models/bert_model.py
 import pandas as pd
 import time
+import tracemalloc
 import torch
+import joblib
+import os
 from transformers import BertTokenizer, BertForSequenceClassification, Trainer, TrainingArguments
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 from sklearn.preprocessing import LabelEncoder
-import os
 
 # Create a custom dataset class required for PyTorch and Hugging Face Trainer
 class IntentDataset(torch.utils.data.Dataset):
@@ -35,7 +38,7 @@ def compute_metrics(pred):
 
 def run_bert_model():
     print("=== Running BERT Fine-Tuning Model ===")
-    
+
     # 1. Load the exact same datasets
     train_df = pd.read_csv("data/processed/train.csv")
     val_df = pd.read_csv("data/processed/val.csv")
@@ -50,7 +53,7 @@ def run_bert_model():
     # 2. Tokenization using pre-trained BERT tokenizer
     print("Tokenizing text data...")
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-    
+
     train_encodings = tokenizer(train_df['text'].tolist(), truncation=True, padding=True, max_length=64)
     val_encodings = tokenizer(val_df['text'].tolist(), truncation=True, padding=True, max_length=64)
     test_encodings = tokenizer(test_df['text'].tolist(), truncation=True, padding=True, max_length=64)
@@ -73,7 +76,7 @@ def run_bert_model():
         weight_decay=0.01,
         logging_dir='./logs',
         logging_steps=100,
-        eval_strategy="epoch",   
+        eval_strategy="epoch",
         save_strategy="epoch",
         load_best_model_at_end=True
     )
@@ -86,24 +89,37 @@ def run_bert_model():
         compute_metrics=compute_metrics
     )
 
-    # 4. Train the Model (with time tracking)
+    # 4. Train the Model (with time tracking and memory tracking)
     print("Starting BERT training... (This may take several minutes depending on your hardware)")
+
+    tracemalloc.start()
     start_time = time.time()
+
     trainer.train()
+
     end_time = time.time()
-    
+    current_mem, peak_mem = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+
     training_time = end_time - start_time
+    peak_mem_mb = peak_mem / 1024 / 1024
 
     # 5. Evaluation
     print("Evaluating BERT on test data...")
     test_results = trainer.evaluate(test_dataset)
 
     print("\n--- BERT Results ---")
-    print(f"Training Time: {training_time / 60:.2f} minutes")
-    print(f"Accuracy:  {test_results['eval_accuracy'] * 100:.2f}%")
-    print(f"Precision: {test_results['eval_precision'] * 100:.2f}%")
-    print(f"Recall:    {test_results['eval_recall'] * 100:.2f}%")
-    print(f"F1-Score:  {test_results['eval_f1'] * 100:.2f}%")
+    print(f"Training Time:      {training_time / 60:.2f} minutes")
+    print(f"Peak Memory Usage:  {peak_mem_mb:.2f} MB")
+    print(f"Accuracy:           {test_results['eval_accuracy'] * 100:.2f}%")
+    print(f"Precision:          {test_results['eval_precision'] * 100:.2f}%")
+    print(f"Recall:             {test_results['eval_recall'] * 100:.2f}%")
+    print(f"F1-Score:           {test_results['eval_f1'] * 100:.2f}%")
+
+    print("\n--- Performance Tradeoff Summary ---")
+    print(f"{'Model':<20} {'Accuracy':<12} {'Training Time':<20} {'Memory Usage':<15}")
+    print("-" * 67)
+    print(f"{'Fine-Tuned BERT':<20} {f"{test_results['eval_accuracy'] * 100:.2f}%\":<12} {f'{training_time / 60:.2f} minutes':<20} {f'{peak_mem_mb:.2f} MB':<15}")
 
     # Save the model and label encoder for our unique tests
     model_save_path = "src/models/saved_models/bert_finetuned"
@@ -111,8 +127,9 @@ def run_bert_model():
     model.save_pretrained(model_save_path)
     tokenizer.save_pretrained(model_save_path)
     joblib.dump(le, "src/models/saved_models/label_encoder.pkl")
-    
-    print(f"Model saved to {model_save_path}")
+
+    print(f"\nModel saved to {model_save_path}")
+
 
 if __name__ == "__main__":
     import joblib 
