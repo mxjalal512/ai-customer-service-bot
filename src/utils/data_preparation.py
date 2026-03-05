@@ -4,10 +4,8 @@ import os
 
 def load_and_filter_data():
     print("Downloading CLINC150 dataset from Hugging Face...")
-    # The 'plus' config includes the out-of-scope (oos) intent
     dataset = load_dataset("clinc_oos", "plus")
     
-    # 25 carefully selected customer service intents
     selected_intents = [
         "order_status", "cancel_order", "change_order", "damaged_receipt",
         "report_fraud", "report_lost_card", "replacement_card_duration",
@@ -18,17 +16,15 @@ def load_and_filter_data():
         "update_password", "freeze_account"
     ]
     
-    # We map the string intents back to their integer IDs in the dataset
+    # Map the string intents back to their integer IDs in the dataset
     intent_names = dataset['train'].features['intent'].names
     selected_intent_ids = {intent_names.index(intent): intent for intent in selected_intents if intent in intent_names}
     
-    # Add the 'oos' (Out-of-Scope) intent for our unique robustness test
     oos_id = intent_names.index("oos")
     selected_intent_ids[oos_id] = "oos"
 
     def filter_and_format(split_name):
         df = dataset[split_name].to_pandas()
-        # Filter for our 25 intents + oos
         filtered_df = df[df['intent'].isin(selected_intent_ids.keys())].copy()
         # Map integer labels back to readable strings
         filtered_df['intent_name'] = filtered_df['intent'].map(selected_intent_ids)
