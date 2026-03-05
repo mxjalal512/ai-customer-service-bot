@@ -1,0 +1,26 @@
+# Environments
+venv/
+.env
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Data and Models
+data/raw/
+data/processed/
+src/models/saved_models/
+results/
+logs/
+*.pt
+*.pth
+*.h5
+*.safetensors
+*.bin
+
+# OS generated files
+.DS_Store
