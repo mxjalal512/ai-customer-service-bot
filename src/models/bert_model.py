@@ -119,7 +119,10 @@ def run_bert_model():
     print("\n--- Performance Tradeoff Summary ---")
     print(f"{'Model':<20} {'Accuracy':<12} {'Training Time':<20} {'Memory Usage':<15}")
     print("-" * 67)
-    print(f"{'Fine-Tuned BERT':<20} {f"{test_results['eval_accuracy'] * 100:.2f}%\":<12} {f'{training_time / 60:.2f} minutes':<20} {f'{peak_mem_mb:.2f} MB':<15}")
+    bert_acc = f"{test_results['eval_accuracy'] * 100:.2f}%"
+    bert_time = f"{training_time / 60:.2f} minutes"
+    bert_mem = f"{peak_mem_mb:.2f} MB"
+    print(f"{'Fine-Tuned BERT':<20} {bert_acc:<12} {bert_time:<20} {bert_mem:<15}")
 
     # Save the model and label encoder for our unique tests
     model_save_path = "src/models/saved_models/bert_finetuned"
@@ -130,7 +133,5 @@ def run_bert_model():
 
     print(f"\nModel saved to {model_save_path}")
 
-
 if __name__ == "__main__":
-    import joblib 
     run_bert_model()
