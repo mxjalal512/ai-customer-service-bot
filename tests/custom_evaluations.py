@@ -1,4 +1,3 @@
-# tests/custom_evaluations.py
 import joblib
 import torch
 from transformers import BertTokenizer, BertForSequenceClassification
@@ -71,7 +70,7 @@ def run_unique_tests():
     ]
     
     print("="*60)
-    print("🤖 CUSTOM EVALUATION TESTS: TF-IDF vs BERT")
+    print("CUSTOM EVALUATION TESTS: TF-IDF vs BERT")
     print("="*60)
     
     # 1. Paraphrase Test
