@@ -140,4 +140,4 @@ python tests/custom_evaluations.py
 
 ## Author
 
-**Liam Smith**
+**Jalal**
