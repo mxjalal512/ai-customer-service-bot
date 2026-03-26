@@ -51,15 +51,16 @@ def run_unique_tests():
         {
             "category": "1. Paraphrase Robustness Testing",
             "description": "Demonstrates BERT understands meaning, not just keywords.",
-            "original": "I want to cancel my order.",
-            "paraphrased": ["Please stop my order.", "I don't want this order anymore."],
-            "expected_intent": "cancel_order"
+            "original": "I want to pay my bill.",
+            "paraphrased": ["Let me settle my bill.", "I need to make a payment."],
+            "expected_intent": "pay_bill"
         },
         {
-            "category": "2. Ambiguity Handling Test",
+             "category": "2. Ambiguity Handling Test",
             "description": "Shows how BERT handles vague context better.",
-            "queries": ["I need help with my account.", "I can't get into my profile."],
+            "queries": ["Something is wrong with my account.", "My account is not working."],
             "expected_intent": "Context Dependent (e.g., account_blocked or update_password)"
+        },
         },
         {
             "category": "3. Out-of-Scope Detection",
